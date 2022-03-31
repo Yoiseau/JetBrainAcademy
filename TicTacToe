@@ -1,0 +1,110 @@
+import kotlin.math.abs
+
+fun main() {
+    var grid = MutableList(3) { MutableList(3) {" "} }
+    val gridBoard = """
+    ---------
+    | ${grid[0][0]} ${grid[0][1]} ${grid[0][2]} |
+    | ${grid[1][0]} ${grid[1][1]} ${grid[1][2]} |
+    | ${grid[2][0]} ${grid[2][1]} ${grid[2][2]} |
+    ---------
+    """.trimIndent()
+
+    println(gridBoard)
+
+    /*
+    var cell = MutableList(3) { MutableList(3) {""} }
+    for (i in 0..enter.lastIndex) {
+        cell[i%3][i/3] = enter[i].toString()
+    }
+    */
+
+    fun isInt(a: Any?) = a is Int
+    fun checkCellVacant(x: Int, y: Int, grid: MutableList<MutableList<String>>) = grid[x][y] != "X" && grid[x][y] != "O"
+
+    var playerTurn = 1
+    var endOfGame: Boolean = false
+    while(!endOfGame) {
+
+        println("Enter the coordinates :")
+        val input = readLine()
+
+        val coordinates = input?.split(" ")
+
+        val x = coordinates!![0]
+        val y = coordinates!![1]
+
+        try {
+            x.toInt()
+            y.toInt()
+        }catch (e: Exception) {
+            println("You should enter numbers!")
+            continue
+        }
+//        if (!isInt(x)|| !isInt(y)) {
+//            println("You should enter numbers!")
+//        }
+        if (x.toInt() !in 1..3 || y.toInt() !in 1..3) {
+            println("Coordinates should be from 1 to 3!")
+            continue
+        }
+        else if (!checkCellVacant(x.toInt() - 1, y.toInt() - 1, grid)){
+            println("This cell is occupied! Choose another one!")
+            continue
+        }
+        else {
+            grid[x.toInt() - 1][y.toInt() - 1] = if(playerTurn % 2 == 1) "X"  else "O"
+            playerTurn++
+        }
+
+        println("""
+        ---------
+        | ${grid[0][0]} ${grid[0][1]} ${grid[0][2]} |
+        | ${grid[1][0]} ${grid[1][1]} ${grid[1][2]} |
+        | ${grid[2][0]} ${grid[2][1]} ${grid[2][2]} |
+        ---------
+        """.trimIndent())
+
+        // Victory Check ----------------------------------
+
+        val winX = mutableListOf("X", "X", "X")
+        val winO = mutableListOf("O", "O", "O")
+        val win0 = mutableListOf(grid[0][0], grid[0][1], grid[0][2])
+        val win1 = mutableListOf(grid[1][0], grid[1][1], grid[1][2])
+        val win2 = mutableListOf(grid[2][0], grid[2][1], grid[2][2])
+        val win3 = mutableListOf(grid[0][0], grid[1][0], grid[2][0])
+        val win4 = mutableListOf(grid[0][1], grid[1][1], grid[2][1])
+        val win5 = mutableListOf(grid[0][2], grid[1][2], grid[2][2])
+        val win6 = mutableListOf(grid[0][0], grid[1][1], grid[2][2])
+        val win7 = mutableListOf(grid[2][0], grid[1][1], grid[0][2])
+
+        val conditionWinX = win0 == winX || win1 == winX || win2 == winX || win3 == winX || win4 == winX || win5 == winX || win6 == winX || win7 == winX
+        val conditionWinO = win0 == winO || win1 == winO || win2 == winO || win3 == winO || win4 == winO || win5 == winO || win6 == winO || win7 == winO
+
+        var countX: Int = 0
+        var countO: Int = 0
+
+        for (line in grid) {
+            for (elt in line) {
+                if (elt == "X") countX++
+                if (elt == "O") countO++
+            }
+        }
+
+        if (abs(countO-countX) >= 2 || conditionWinX && conditionWinO){
+            println("Impossible")
+            endOfGame = true
+        } else if (conditionWinX) {
+            println("X wins")
+            endOfGame = true
+        } else if (conditionWinO) {
+            println("O wins")
+            endOfGame = true
+        } else if (9 - countO - countX >= 1) {
+            continue
+        } else {
+            println("Draw")
+            endOfGame = true
+        }
+    }
+}
